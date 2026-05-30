@@ -1,36 +1,32 @@
 import os
-import dill
-
 import sys
 
+import numpy as np 
 import pandas as pd
-import numpy as np  
+import dill
+import pickle
 from sklearn.metrics import r2_score
 from sklearn.model_selection import GridSearchCV
-from src.logger import logging
+
 from src.exception import CustomException
-
-
-
 
 def save_object(file_path, obj):
     try:
         dir_path = os.path.dirname(file_path)
+
         os.makedirs(dir_path, exist_ok=True)
 
-        with open(file_path, 'wb') as file_obj:
-            dill.dump(obj, file_obj)
+        with open(file_path, "wb") as file_obj:
+            pickle.dump(obj, file_obj)
 
     except Exception as e:
         raise CustomException(e, sys)
     
-def evaluate_models(X_train, y_train, X_test, y_test, models,param):
-
+def evaluate_models(X_train, y_train,X_test,y_test,models,param):
     try:
         report = {}
 
-        for i in range(len(models)):
-
+        for i in range(len(list(models))):
             model = list(models.values())[i]
             para=param[list(models.keys())[i]]
 
@@ -40,18 +36,27 @@ def evaluate_models(X_train, y_train, X_test, y_test, models,param):
             model.set_params(**gs.best_params_)
             model.fit(X_train,y_train)
 
+            #model.fit(X_train, y_train)  # Train model
 
-            ##model.fit(X_train, y_train)  # Train the model
+            y_train_pred = model.predict(X_train)
 
-            y_train_pred = model.predict(X_train)  # Predict on the training set
-            y_test_pred = model.predict(X_test)  # Predict on the test set
+            y_test_pred = model.predict(X_test)
 
-            test_model_score = r2_score(y_test, y_test_pred)  # Calculate R2 score
+            train_model_score = r2_score(y_train, y_train_pred)
 
-            report[list(models.keys())[i]] = test_model_score  # Store the score in the report
+            test_model_score = r2_score(y_test, y_test_pred)
+
+            report[list(models.keys())[i]] = test_model_score
 
         return report
 
     except Exception as e:
-        logging.error("Error occurred during model evaluation.")
+        raise CustomException(e, sys)
+    
+def load_object(file_path):
+    try:
+        with open(file_path, "rb") as file_obj:
+            return pickle.load(file_obj)
+
+    except Exception as e:
         raise CustomException(e, sys)
