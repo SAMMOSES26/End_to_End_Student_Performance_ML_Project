@@ -1,0 +1,8 @@
+venv/
+.vscode/
+notebook/
+catboost_info/
+logs/
+__pycache__/
+.git/
+.ipynb_checkpoints/

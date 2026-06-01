@@ -156,7 +156,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+catboost_info/
+logs/
+.vscode/
 # Spyder project settings
 .spyderproject
 .spyproject
